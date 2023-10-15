@@ -4,23 +4,28 @@ import React, { useState } from "react";
 import TextField from "@mui/material/TextField";
 import Link from "next/link";
 import axios from "axios";
+import { useAuth } from "@/context/authContext";
 
 const Loginform = () => {
   const path = "http://localhost:5000/api/v1";
   const [loginData, setLoginData] = useState({ email: "", password: "" });
+  const { user, isAuthenticated, login } = useAuth();
 
   const sendData = async () => {
-    console.log("wysyłanie danych");
-    await axios
-      .post(path + "/auth/login", loginData, {
-        withCredentials: true,
-      })
-      .then((res) => {
-        console.log(res);
-      })
-      .catch((err) => {
-        console.log(err.data.response);
-      });
+    console.log("wysyłanie danych", user, isAuthenticated);
+    login(loginData.email, loginData.password);
+    console.log("po wyslaniu danych", user, isAuthenticated);
+
+    // await axios
+    //   .post(path + "/auth/login", loginData, {
+    //     withCredentials: true,
+    //   })
+    //   .then((res) => {
+    //     console.log(res);
+    //   })
+    //   .catch((err) => {
+    //     console.log(err.data.response);
+    //   });
   };
 
   return (

@@ -1,8 +1,9 @@
 import "./globals.css";
 
 import { Inter } from "next/font/google";
-
 const inter = Inter({ subsets: ["latin"] });
+import { AuthProvider } from "@/context/authContext";
+import AuthGuard from "@/utils/authGuard";
 
 export const metadata = {
   title: "ParagonAI",
@@ -11,8 +12,12 @@ export const metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body className={inter.className}>{children}</body>
-    </html>
+    <AuthProvider>
+      <html lang="en">
+        <body className={inter.className}>
+          <AuthGuard>{children}</AuthGuard>
+        </body>
+      </html>
+    </AuthProvider>
   );
 }
