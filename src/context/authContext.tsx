@@ -92,6 +92,7 @@ export function AuthProvider({ children }: AuthProps) {
         }
       )
       .then((res) => {
+        console.log("login data", res.data);
         dispatch({ type: Auth.LOGIN, payload: { isAuthenticated: true, user: res.data.user } });
         return res;
       })
@@ -102,11 +103,12 @@ export function AuthProvider({ children }: AuthProps) {
   }, []);
 
   // function to logout
-  const logout = useCallback(async () => {
+  const logout = useCallback(async (userId: number) => {
     console.log("logout");
-    await axios
-      .post("/auth/logout")
+    await axiosInstance
+      .post(path + "/auth/logout", { userId })
       .then((res) => {
+        console.log("SKOCNZYŁEM WYLOGOWYWANIE SIE");
         dispatch({ type: Auth.LOGOUT, payload: { user: null, isAuthenticated: false } });
       })
       .catch((err) => {

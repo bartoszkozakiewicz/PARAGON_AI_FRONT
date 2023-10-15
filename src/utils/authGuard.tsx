@@ -15,9 +15,11 @@ export default function AuthGuard({ children }: Props) {
   const pathname = usePathname();
   console.log("jestem", isAuthenticated);
   useEffect(() => {
-    if (isAuthenticated && pathname === "/login") {
-      console.log("login - authGuard", isAuthenticated);
+    if (isAuthenticated && (pathname === "/login" || pathname === "/register")) {
       push("/");
+    }
+    if (!isAuthenticated && pathname !== "/login" && pathname !== "/register") {
+      push("/login");
     }
   }, [isAuthenticated, pathname]);
 

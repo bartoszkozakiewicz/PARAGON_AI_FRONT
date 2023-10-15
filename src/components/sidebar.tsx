@@ -6,39 +6,24 @@ import Image from "next/image";
 import Link from "next/link";
 
 const SidebaR = () => {
+  const sites = [
+    { id: 1, name: "Baza danych", link: "/database" },
+    { id: 2, name: "Dodawanie paragonu", link: "/add-paragon" },
+    { id: 3, name: "Analiza danych", link: "/analytics" },
+    { id: 4, name: "Galeria paragonów", link: "/gallery" },
+  ];
   return (
-    <Sidebar>
-      <Menu
-        className=" bg-[#2A2A2A] min-h-screen text-white"
-        menuItemStyles={{
-          button: {
-            // the active class will be added automatically by react router
-            // so we can use it to style the active menu item
-            [`&.active`]: {
-              backgroundColor: "#13395e",
-              color: "black",
-            },
-          },
-        }}
-      >
-        <div className="flex flex-col items-center justify-center p-6">
-          <p className="font-semibold font-serif text-xl">ParagonAI</p>
-          <Image src="/logo.png" width={100} height={100} alt="Picture of the author" />
-        </div>
-        <Link href="/database">
-          <MenuItem>Baza danych</MenuItem>
+    <div className="font-serif text-lg flex flex-col basis-1/5 bg-[#2A2A2A] text-white">
+      <div className="flex flex-col items-center justify-center p-6">
+        <p className="font-semibold font-serif text-xl">ParagonAI</p>
+        <Image src="/logo.png" width={100} height={100} alt="Picture of the author" />
+      </div>
+      {sites.map((site) => (
+        <Link key={site.id} href={site.link}>
+          <div className="flex flex-row p-3 hover:bg-slate-500">{site.name}</div>
         </Link>
-        <Link href="/add-paragon">
-          <MenuItem> Dodawanie paragonu</MenuItem>
-        </Link>
-        <Link href="/analytics">
-          <MenuItem> Analiza danych</MenuItem>
-        </Link>
-        <Link href="/gallery">
-          <MenuItem> Galeria paragonów</MenuItem>
-        </Link>
-      </Menu>
-    </Sidebar>
+      ))}
+    </div>
   );
 };
 
