@@ -11,6 +11,7 @@ const SidebaR = () => {
     { id: 2, name: "Dodawanie paragonu", link: "/add-paragon" },
     { id: 3, name: "Analiza danych", link: "/analytics" },
     { id: 4, name: "Galeria paragonów", link: "/gallery" },
+    { id: 5, name: "Dodawanie ręczne", link: "/add-no-paragon" },
   ];
   return (
     <div className="font-serif text-lg flex flex-col basis-1/5 bg-[#2A2A2A] text-white">

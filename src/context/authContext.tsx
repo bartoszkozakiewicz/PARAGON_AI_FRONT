@@ -108,7 +108,6 @@ export function AuthProvider({ children }: AuthProps) {
     await axiosInstance
       .post(path + "/auth/logout", { userId })
       .then((res) => {
-        console.log("SKOCNZYŁEM WYLOGOWYWANIE SIE");
         dispatch({ type: Auth.LOGOUT, payload: { user: null, isAuthenticated: false } });
       })
       .catch((err) => {

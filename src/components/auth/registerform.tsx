@@ -1,11 +1,12 @@
 "use client";
-
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import TextField from "@mui/material/TextField";
 import Link from "next/link";
 import axios from "axios";
 const Registerform = () => {
   const path = "http://localhost:5000/api/v1";
+  const { push } = useRouter();
 
   const [registerData, setRegisterData] = useState({ name: "", email: "", password: "" });
 
@@ -15,6 +16,7 @@ const Registerform = () => {
       .post(path + "/auth/register", registerData)
       .then((res) => {
         console.log(res);
+        push("/login");
       })
       .catch((err) => {
         console.log(err.response.data.msg);
