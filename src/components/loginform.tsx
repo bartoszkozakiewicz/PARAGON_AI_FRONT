@@ -16,16 +16,16 @@ const Loginform = () => {
     login(loginData.email, loginData.password);
     console.log("po wyslaniu danych", user, isAuthenticated);
 
-    // await axios
-    //   .post(path + "/auth/login", loginData, {
-    //     withCredentials: true,
-    //   })
-    //   .then((res) => {
-    //     console.log(res);
-    //   })
-    //   .catch((err) => {
-    //     console.log(err.data.response);
-    //   });
+    await axios
+      .post(path + "/auth/login", loginData, {
+        withCredentials: true,
+      })
+      .then((res) => {
+        console.log(res);
+      })
+      .catch((err) => {
+        console.log(err.data.response);
+      });
   };
 
   return (
