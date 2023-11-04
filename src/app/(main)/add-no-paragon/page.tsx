@@ -24,7 +24,7 @@ const page = () => {
   const [open, setOpen] = useState<boolean>(false);
   const [alertAccepted, setAlertAccepted] = useState<boolean>(true)
 
-  const [saveEnabled, setSaveEnabled] = useState<boolean>(true)
+  const [saveEnabled, setSaveEnabled] = useState<boolean>(false)
 
   const [actualData, setActualData] = useState<Product[] | Universal[]>([{name:"",price:0,amount:0,category:""}])
 
@@ -38,6 +38,7 @@ const page = () => {
     { id: 2, category: "Art. budowlany" },
     { id: 3, category: "Art. chemiczny" },
     { id: 4, category: "Art. papierniczy" },
+    { id: 5, category: "Alkohol"}
 
   ];
 
@@ -65,7 +66,7 @@ const page = () => {
   }
 
   const handleButtonClick = (buttonName:string) => {
-    if(saveEnabled){
+    if(isSomeFilled()){
       setNextButton(buttonName)
       setOpen(true)
       }
@@ -109,29 +110,78 @@ const page = () => {
     switch(activeButton){
       case "Spozywcze":
         console.log("Spozywcze")
-        await axiosInstance.post(`${path}/product/addElement?cat=${activeButton}`,{sumPrice,actualData,shop}).then((res:any)=>console.log(res)).catch((e:any)=>console.log(e))
+        await axiosInstance.post(`${path}/product/addElement?cat=${activeButton}`,{sumPrice,actualData,shop}).then((res:any)=>{
+          console.log(res) 
+          setActualData([{name:"",price:0,amount:0,category:""}])
+        }).catch((e:any)=>console.log(e))
         break;
       case "Rozrywka":
         console.log("Rozrywka")
-        await axiosInstance.post(`${path}/product/addElement?cat=${activeButton}`,actualData).then((res:any)=>console.log(res)).catch((e:any)=>console.log(e))
+        await axiosInstance.post(`${path}/product/addElement?cat=${activeButton}`,{actualData,shop}).then((res:any)=>{
+          console.log(res)
+          setActualData([{name:"",price:0,amount:0}])
+        }).catch((e:any)=>console.log(e))
         break;
       case "Transport":
         console.log("Transport")
-        await axiosInstance.post(`${path}/product/addElement?cat=${activeButton}`,actualData).then((res:any)=>console.log(res)).catch((e:any)=>console.log(e))
+        await axiosInstance.post(`${path}/product/addElement?cat=${activeButton}`,{actualData,shop}).then((res:any)=>{
+          console.log(res)
+          setActualData([{name:"",price:0,amount:0}])
+        }).catch((e:any)=>console.log(e))
         break;
       case "Pozostałe":
         console.log("Pozostałe")
-        await axiosInstance.post(`${path}/product/addElement?cat=${activeButton}`,actualData).then((res:any)=>console.log(res)).catch((e:any)=>console.log(e))
+        await axiosInstance.post(`${path}/product/addElement?cat=${activeButton}`,{actualData,shop}).then((res:any)=>{
+          console.log(res)
+          setActualData([{name:"",price:0,amount:0}])
+        }).catch((e:any)=>console.log(e))
         break;
     }
   }
 
-  const isDataEqual = () =>{
-    console.log("Check data equality to turn on/off button")
+  function isAnProduct(obj:any):obj is Product {
+    return "name" in obj && "amount" in obj && "category" in obj && "price" in obj
   }
 
-  // -------------------------------------------------------------------
+  const isSomeFilled = ():boolean => {
+    const isNotEmpty = actualData.some((item) => {
+      return item.name !== "" || Number(item.amount) !== 0 || Number(item.amount) !== 0 || (!isAnProduct(item) ? false : (isAnProduct(item) && item.category !== "")) ;
+    });
+    return isNotEmpty
+  }
+  
 
+  const isDataEqual = () =>{
+    console.log("Check data equality to turn on/off button")
+    const isNotEmpty = actualData.every(item => (
+        item.name !== "" &&
+        Number(item.amount) !== 0 &&
+        Number(item.amount) !== 0 &&
+        (!isAnProduct(item) || (isAnProduct(item) && item.category !== "")) 
+        ));
+    const otherNotEmpty = activeButton==="Spozywcze" ? (shop.name !=="" && shop.date !=="") : shop.date !== ""
+    console.log("Other",otherNotEmpty)
+    if (isNotEmpty && otherNotEmpty){
+        console.log("Not empty")
+      setSaveEnabled(true)
+    }
+    else{
+      setSaveEnabled(false)
+    }
+  }
+  console.log("Actual",actualData)
+  // -------------------------------------------------------------------
+  useEffect(()=>{
+    if(activeButton==="Spozywcze"){
+      setActualData([{name:"",price:0,amount:0,category:""}])
+    }else{
+      setActualData([{name:"",price:0,amount:0}])
+    }
+  },[activeButton])
+
+  useEffect(()=>{
+    isDataEqual()
+  },[actualData,shop])
 
   useEffect(()=>{
       setBPos((prevData:any) => {
@@ -148,7 +198,6 @@ const page = () => {
       })
     }
   ,[])
-  console.log("XXXxxxx",actualData)
 
   return (
     <div className="flex flex-col items-center justify-center w-full h-full ">
@@ -213,4 +262,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default page
