@@ -13,6 +13,7 @@ import AlertSave from "@/components/add-products-section/alertSave";
 import { axiosInstance } from "@/utils/axiosInstace";
 
 const page = () => {
+  const path = "http://localhost:5000/api/v1";
 
   const b1Ref = useRef<HTMLButtonElement | null>(null)
   const b2Ref = useRef<HTMLButtonElement | null>(null)
@@ -23,7 +24,7 @@ const page = () => {
   const [open, setOpen] = useState<boolean>(false);
   const [alertAccepted, setAlertAccepted] = useState<boolean>(true)
 
-  const [saveEnabled, setSaveEnabled] = useState<boolean>(false)
+  const [saveEnabled, setSaveEnabled] = useState<boolean>(true)
 
   const [actualData, setActualData] = useState<Product[] | Universal[]>([{name:"",price:0,amount:0,category:""}])
 
@@ -100,18 +101,27 @@ const page = () => {
 
   const handleSendData = async() =>{
     console.log("Send data")
+    let sumPrice = 0
+    actualData.forEach((prod)=>{
+      sumPrice+=Number(prod.price)
+    })
+    console.log(sumPrice)
     switch(activeButton){
       case "Spozywcze":
         console.log("Spozywcze")
+        await axiosInstance.post(`${path}/product/addElement?cat=${activeButton}`,{sumPrice,actualData,shop}).then((res:any)=>console.log(res)).catch((e:any)=>console.log(e))
         break;
       case "Rozrywka":
         console.log("Rozrywka")
+        await axiosInstance.post(`${path}/product/addElement?cat=${activeButton}`,actualData).then((res:any)=>console.log(res)).catch((e:any)=>console.log(e))
         break;
       case "Transport":
         console.log("Transport")
+        await axiosInstance.post(`${path}/product/addElement?cat=${activeButton}`,actualData).then((res:any)=>console.log(res)).catch((e:any)=>console.log(e))
         break;
       case "Pozostałe":
         console.log("Pozostałe")
+        await axiosInstance.post(`${path}/product/addElement?cat=${activeButton}`,actualData).then((res:any)=>console.log(res)).catch((e:any)=>console.log(e))
         break;
     }
   }
