@@ -7,7 +7,7 @@ import { Product,Universal } from "../../types";
 
 type Props = {
   num:number;
-  activeButton:string;
+  activeButton?:string | undefined;
   setProducts:React.Dispatch<React.SetStateAction<Product[] | Universal[]>>;
   handleDeleteProduct:(num: number) => void;
   product: Product | Universal;

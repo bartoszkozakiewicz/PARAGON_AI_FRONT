@@ -6,6 +6,7 @@ import { DataGrid, GridColDef, GridValueGetterParams } from '@mui/x-data-grid';
 import { getData } from '@/utils/data/getData';
 import { axiosInstance } from '@/utils/axiosInstace';
 import Skeleton from '@mui/material/Skeleton';
+import { useRouter } from 'next/navigation'
 
 type ShoppingData = {
     date: string;
@@ -83,6 +84,8 @@ const columns: GridColDef[] = [
 const path = "http://localhost:5000/api/v1";
 
 const Data_grid = () => {
+    const router = useRouter()
+
     const [allData,setAllData] = useState<mergedData>([{id:0,category:"",name:"",price:0,date:new Date("2023-11-04"),amount:0}])
     const [selectedRows, setSelectedRows] = useState<any>([]);
     const [isLoading, setIsLoading] = useState(true)
@@ -179,6 +182,14 @@ const Data_grid = () => {
                 <DataGrid
                   rows={allData}
                   columns={columns}
+                  onRowClick = {(params)=>{
+                    const rowData = params.row
+                    console.log("rowData",rowData)
+                    if (rowData.category === "Shopping"){
+                      console.log("Przechodze do shopping")
+                      router.push(`/edit-single-paragon?shopId=${rowData.realId}&&shopName=${rowData.name}&&shopDate=${rowData.date}`)
+                    }
+                  }}
                   initialState={{
                     pagination: {
                       paginationModel: {
