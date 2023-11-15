@@ -1,11 +1,10 @@
 'use client'
 
-//ZAMIENIC NA SERVER SIDE RENDERING staticparams...
 
 import React, { useEffect, useState } from 'react'
 import { axiosInstance } from '@/utils/axiosInstace'
 import OneProduct from '@/components/add-products-section/one_products'
-import { Product,Shop,Universal } from "../../../types/";
+import { Product,Shop,Universal } from "../../../types";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import Button from "@mui/material/Button";
@@ -14,7 +13,40 @@ import TextField from "@mui/material/TextField/TextField";
 import { useSearchParams } from 'next/navigation';
 import dayjs from 'dayjs';
 
+const path = "http://localhost:5000/api/v1";
 
+//Do przemyslenia lepszego  wszystko ze static - z useClient nie mozna
+
+// export async function getStaticPaths() {
+  
+//   const response = await axiosInstance.get(`${path}/product/allData`)
+//   console.log(response.data.shopping)
+//   const createdDataPaths = response.data.shoppingData.map((item:any)=>{
+//     return{
+//       params:{
+//         editId: item.shopId.toString()
+//       }
+//     }
+//   })  
+//   return {
+//     paths: createdDataPaths,
+//     fallback: 'blocking',
+//   };
+//  }
+
+ 
+//  export async function generateStaticParams(context:any) {
+//   const { editId } = context.params
+//   const response = await axiosInstance.get(`${path}/product/paragon?shopId=${editId}`)
+//   console.log("server side data", response.data)
+//   return {
+//     props: {
+//       actualData: response.data
+//     },
+//   };
+//  }
+ 
+ 
 
 const list_categories = [
     { id: 1, category: "Pozywienie" },
@@ -24,9 +56,9 @@ const list_categories = [
     { id: 5, category: "Alkohol"}
 
   ];
-  const path = "http://localhost:5000/api/v1";
 
-const page = () => {
+const page = (props:any) => {
+    console.log("PROPSY",props)
     const [actualData, setActualData] = useState<Product[] | Universal[]>([{name:"",price:0,amount:0,category:""}])
     const [shop,setShop] = useState<Shop>({name:"",date:""})
     const searchParams = useSearchParams()
@@ -63,7 +95,7 @@ const page = () => {
       }
 
     useEffect(()=>{
-        const dateObject = new Date(searchParams.get("shopDate") as string);
+        const dateObject = new Date( searchParams.get("shopDate") as string);//searchParams.get("shopDate")
         const year = dateObject.getFullYear();
         const month = (dateObject.getMonth() + 1).toString().padStart(2, '0'); // Dodaj 1 do miesiąca, formatuj jako dwucyfrowy
         const day = dateObject.getDate().toString().padStart(2, '0'); // Formatuj jako dwucyfrowy

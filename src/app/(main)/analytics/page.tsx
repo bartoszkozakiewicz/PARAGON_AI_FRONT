@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { LineChart } from "@mui/x-charts/LineChart";
 import { axiosInstance } from "@/utils/axiosInstace";
-import { PieChart } from '@mui/x-charts/PieChart';
-import Skeleton from '@mui/material/Skeleton';
 import Box from '@mui/material/Box';
+import Skeleton from '@mui/material/Skeleton';
+import { LineChart } from "@mui/x-charts/LineChart";
+import { PieChart } from '@mui/x-charts/PieChart';
+import { useEffect, useState } from "react";
 
 
 const page = () => {
@@ -114,7 +114,7 @@ const page = () => {
     <div className="p-10 w-[100%] flex flex-col items-center justify-center">
       <div className="flex flex-row w-[100%] justify-evenly">
         <div className="flex flex-col items-center w-[50%] mx-auto">
-        <p className="text-xl font-serif text-center mb-3">PRZEBIEGI WYDATKÓW Z PODZIAŁEM NA KATEGORIE</p>
+        <p className="text-xl font-serif text-center mb-3">PRZEBIEGI - WYDATKI OD KATEGORII</p>
           {!firstChartData ? 
             <Box sx={{width: "80%" }}>
               <Skeleton animation="wave" sx={{height:300}}/>
@@ -150,7 +150,7 @@ const page = () => {
             series={[
               {
                 data: [
-                  { id: 0, value: prices.sumEnertainmentPrice, label: 'Rozrywka' },
+                  { id: 0, value: prices.sumEntertainmentPrice, label: 'Rozrywka' },
                   { id: 1, value: prices.sumShopPrice, label: 'Zakupy spozywcze' },
                   { id: 2, value: prices.sumTransportPrice, label: 'Transport' },
                   { id: 3, value: prices.sumOtherPrice, label: 'Inne' },
@@ -168,8 +168,58 @@ const page = () => {
       </div>
 
       <div className="flex flex-row w-[100%] justify-evenly">
-        <div className="mt-10 flex items-center justify-center">X</div>
-        <div className="mt-10 flex items-center justify-center">Y</div>
+        <div className="flex flex-col items-center w-[50%] mx-auto">
+          <p className="text-xl text-center font-serif mb-3 mt-3">PRZEBIEGI - ZAKUPY SPOŻYWCZE OD KATEGORI</p>
+          {!firstChartData ? 
+            <Box sx={{width: "80%" }}>
+              <Skeleton animation="wave" sx={{height:300}}/>
+            </Box>
+          :
+            <LineChart
+            xAxis={[
+              {
+                label: "Data",
+                dataKey: "date",
+                valueFormatter: (v: any) => new Date(v).toISOString().split('T')[0],
+                min: endDate[0].date,
+                tickNumber:4,
+                // max: endDate[endDate.length - 1].date
+              },
+            ]}
+            series={Object.keys(keyToLabel).map((key) => ({
+              dataKey: key,
+              label: keyToLabel[key],
+              color: colors[key],
+              showMark: false,
+              // ...stackStrategy,
+            }))}
+            dataset={firstChartData}
+            {...customize}
+            /> 
+          }
+        </div>
+        <div className="flex w-[50%] flex-col  items-center mx-auto">
+          <p className="text-xl text-center font-serif mt-3 mb-3">PODZIAŁ ZAKUPÓW SPOŻYWCZYCH NA KATEGORIE</p>
+          {prices ? 
+        <PieChart
+            series={[
+              {
+                data: [
+                  { id: 0, value: prices.sumEntertainmentPrice, label: 'Rozrywka' },
+                  { id: 1, value: prices.sumShopPrice, label: 'Zakupy spozywcze' },
+                  { id: 2, value: prices.sumTransportPrice, label: 'Transport' },
+                  { id: 3, value: prices.sumOtherPrice, label: 'Inne' },
+                ],
+              },
+            ]}
+            width={600}
+            height={200}
+            />: 
+            <Box sx={{width: "80%" }}>
+              <Skeleton animation="wave" sx={{height:300}}/>
+            </Box>
+          }
+        </div>
 
       </div>
     </div>
