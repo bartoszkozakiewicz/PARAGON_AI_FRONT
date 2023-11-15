@@ -35,9 +35,9 @@ const page = () => {
   const [x,setX] = useState("15px")
   const list_categories = [
     { id: 1, category: "Pozywienie" },
-    { id: 2, category: "Art. budowlany" },
-    { id: 3, category: "Art. chemiczny" },
-    { id: 4, category: "Art. papierniczy" },
+    { id: 2, category: "art_budowlany" },
+    { id: 3, category: "art_gosp_dom" },
+    { id: 4, category: "art_papier" },
     { id: 5, category: "Alkohol"}
 
   ];

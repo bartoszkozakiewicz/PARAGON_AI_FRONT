@@ -18,7 +18,10 @@ type Props = {
 }
 
 const OneProduct = ({num,setProducts,list_categories,handleDeleteProduct,product,activeButton}:Props) => {
-
+  function isProduct(item: Product | Universal): item is Product {
+    return (item as Product).category !== undefined;
+  }
+  
   return (
     <div className="flex flex-col gap-2">
 
@@ -32,6 +35,7 @@ const OneProduct = ({num,setProducts,list_categories,handleDeleteProduct,product
       id="demo-simple-select-helper"
       label="Kategoria"
       style={{ maxHeight: "300px", overflowY: "auto" }}
+      value={isProduct(product) ? product.category : ''}
       onChange={(event)=>setProducts((prevProd:any)=>prevProd.map((prod:any,index:number)=>{
         if (index !==num){
           return prod

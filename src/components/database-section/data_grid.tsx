@@ -187,7 +187,7 @@ const Data_grid = () => {
                     console.log("rowData",rowData)
                     if (rowData.category === "Shopping"){
                       console.log("Przechodze do shopping")
-                      router.push(`/edit-single-paragon?shopId=${rowData.realId}&&shopName=${rowData.name}&&shopDate=${rowData.date}`)
+                      router.push(`/edit-single-paragon? =${rowData.realId}&&shopName=${rowData.name}&&shopDate=${rowData.date}`)
                     }
                   }}
                   initialState={{

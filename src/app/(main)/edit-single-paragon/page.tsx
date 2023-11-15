@@ -1,5 +1,7 @@
 'use client'
 
+//ZAMIENIC NA SERVER SIDE RENDERING staticparams...
+
 import React, { useEffect, useState } from 'react'
 import { axiosInstance } from '@/utils/axiosInstace'
 import OneProduct from '@/components/add-products-section/one_products'
@@ -13,11 +15,12 @@ import { useSearchParams } from 'next/navigation';
 import dayjs from 'dayjs';
 
 
+
 const list_categories = [
     { id: 1, category: "Pozywienie" },
-    { id: 2, category: "Art. budowlany" },
-    { id: 3, category: "Art. chemiczny" },
-    { id: 4, category: "Art. papierniczy" },
+    { id: 2, category: "art_budowlany" },
+    { id: 3, category: "art_gosp_dom" },
+    { id: 4, category: "art_papier" },
     { id: 5, category: "Alkohol"}
 
   ];
@@ -53,9 +56,8 @@ const page = () => {
         })
         console.log("Spozywcze")
         
-        await axiosInstance.post(`${path}/product/addElement?cat=Shopping`,{sumPrice,actualData,shop}).then((res:any)=>{
+        await axiosInstance.post(`${path}/product/addElement?cat=Spozywcze&&shopId=${searchParams.get("shopId")}`,{sumPrice,actualData,shop}).then((res:any)=>{
             console.log(res) 
-            setActualData([{name:"",price:0,amount:0,category:""}])
         }).catch((e:any)=>console.log(e))
             
       }
@@ -85,12 +87,12 @@ const page = () => {
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker value={dayjs(shop.date)} onChange={((date:any)=>setShop((prevData:Shop)=>({...prevData,date:date.format("YYYY-MM-DD")})))}/>
                 </LocalizationProvider>
-                <button onClick={handleSendData} className={`ml-auto rounded-xl p-3 text-white bg-blue-500 font-sans`}>DODAJ</button>
+                <button onClick={handleSendData} className={`ml-auto rounded-xl p-3 text-white bg-blue-500 font-sans`}>EDYTUJ</button>
             </div>
             <p className="font-semibold font-sans mt-3">PRODUKTY</p>
             <div className="flex flex-col gap-3 max-h-[300px] p-6 overflow-y-auto">
                 {actualData.map((product:any,index:number)=>(
-                    <OneProduct key={index} num={index}  list_categories={list_categories} 
+                    <OneProduct key={index} num={index}  list_categories={list_categories} activeButton='Spozywcze'
                     product={product} setProducts={setActualData}  handleDeleteProduct={(num:number)=>handleDeleteProduct(num)}
                     />
                     ))}

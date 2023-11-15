@@ -2,6 +2,7 @@
 
 import React, { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
+import Image from "next/image";
 
 export default function MyDropzone() {
   const onDrop = useCallback((acceptedFiles: any) => {
@@ -18,12 +19,15 @@ export default function MyDropzone() {
       reader.readAsArrayBuffer(file);
     });
   }, []);
-  const { getRootProps, getInputProps } = useDropzone({ onDrop });
+  const { getRootProps, getInputProps } = useDropzone({
+    onDrop,
+    accept: {"image/*":[] }  });
 
   return (
-    <div className="hover:cursor-pointer rounded-3xl md:w-[20%] w-[50%] h-30% shadow-custom mx-auto text-center p-5" {...getRootProps()}>
+    <div className="hover:cursor-pointer rounded-3xl md:w-[20%] w-[70%]  shadow-custom mx-auto text-center p-5" {...getRootProps()}>
       <input {...getInputProps()} />
-      <p>Wrzuć zdjęcie paragonu</p>
+      <p className="font-serif text-lg">Wrzuć zdjęcie paragonu</p>
+      <Image alt="Drop" src="/img_Drop_bez.png" height="500" width="500"></Image>
     </div>
   );
 }
