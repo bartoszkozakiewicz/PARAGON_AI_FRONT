@@ -14,6 +14,9 @@ const page = () => {
   const [secondChartData,setSecondChartData] = useState<any>()
   const [thirdChartData,setThirdChartData] = useState<any>()
   const [prices, setPrices] = useState<any>(null)
+  const [productsPrices, setProductsPrices] = useState<any>(null)
+
+  
 
   const [loading,setLoading] = useState(true)
 
@@ -21,19 +24,26 @@ const page = () => {
     const allDataNeeded = await axiosInstance.get(`${path}/product/neededData?date1=x&&date2=x`)
       .then(
         res=>{
-          console.log("HALO RES:",res.data)
           console.log("HALO RES-END:",res.data.endData)
+          console.log("HALO RES-PRODUCTS:",res.data.endProducts)
           res.data.endData.map((ele:any)=>{
             ele.date = new Date(ele.date)
             return ele
           })
+          res.data.endProducts.map((ele:any)=>{
+            ele.date = new Date(ele.date)
+            return ele
+          })
+
           setFirstChartData(res.data.endData)
+          setThirdChartData(res.data.endProducts)
           setPrices({
             sumEnertainmentPrice:res.data.sumEnertainmentPrice,
             sumOtherPrice:res.data.sumOtherPrice,
             sumShopPrice:res.data.sumShopPrice,
             sumTransportPrice:res.data.sumTransportPrice,
           })
+          setProductsPrices(res.data.sumProductPrices)
         }
       )
       .catch((err)=>console.log(err))
@@ -49,39 +59,8 @@ const page = () => {
     setLoading(false)
   },[])
 
-  const endDate = [
-    {
-      date: new Date("2023-11-03T00:00:00.000Z"),
-      entertainment: 0,
-      other: 0,
-      shopping: 28,
-      transport: 0,
-    },
-    {
-      date: new Date("2023-11-04T00:00:00.000Z"),
-      entertainment: 20,
-      other: 40,
-      shopping: 58,
-      transport: 16,
-    },
-  ]
 
-  const worldElectricityProduction = [
-    {
-      country: "World",
-      year: 2022,
-      other: 99.74,
-      bio: 677.57,
-      solar: 1289.27,
-      wind: 2139.23,
-      hydro: 4326.76,
-      nuclear: 2610.04,
-      oil: 884.98,
-      gas: 6309.46,
-      coal: 10190.71,
-    },
-  ];
-
+  //--------------------------Wykres 1 - WYDATKI OD KATEGORII
   const keyToLabel: { [key: string]: string } = {
     entertainment: "Wydatki na rozrywkę (PLN)",
     shopping: "Wydatki na zakupy spozywcze (PLN)",
@@ -89,19 +68,34 @@ const page = () => {
     other: "Wydatki inne (PLN)",
 
   };
-
   const colors: { [key: string]: string } = {
-    entertainment: "#1976D2",
-    shopping: "#03fc66",
-    transport: "#FF4081",
-    other: "lightblue",
+    entertainment: "#44CF6C",
+    shopping: "#083D77",
+    transport: "#FF6978",
+    other: "#FFDC5E",
   };
 
-  const stackStrategy = {
-    stack: "total",
-    area: false,
-    stackOffset: "none", // To stack 0 on top of others
-  } as const;
+  //--------------------------Wykres 2 - ZAKUPY SPOŻYWCZE OD KATEGORII
+  const keyToLabel_products: { [key: string]: string } = {
+    Alkohol: "Wydatki na alkohol (PLN)",
+    Pozywienie: "Wydatki na pozywienie (PLN)",
+    art_budowlany: "Wydatki na artykuły budowlane (PLN)",
+    art_gosp_dom: "Wydatki na artykuły gospodarstwa domowego (PLN)",
+    art_papier: "Wydatki artykuły papiernicze (PLN)",
+  };
+  const colors_products: { [key: string]: string } = {
+    Alkohol: "#44CF6C",
+    Pozywienie: "#083D77",
+    art_budowlany: "#FF6978",
+    art_gosp_dom: "#FFDC5E",
+    art_papier: "#7A7265"
+  };
+
+  // const stackStrategy = {
+  //   stack: "total",
+  //   area: false,
+  //   stackOffset: "none", // To stack 0 on top of others
+  // } as const;
 
   const customize = {
     height: 300,
@@ -109,7 +103,8 @@ const page = () => {
     margin: { top: 5 },
     stackingOrder: "descending",
   };
-  console.log(firstChartData, "first")
+  console.log("HALO",firstChartData,"third",thirdChartData)
+
   return (
     <div className="p-10 w-[100%] flex flex-col items-center justify-center">
       <div className="flex flex-row w-[100%] justify-evenly">
@@ -126,7 +121,7 @@ const page = () => {
                 label: "Data",
                 dataKey: "date",
                 valueFormatter: (v: any) => new Date(v).toISOString().split('T')[0],
-                min: endDate[0].date,
+                min: firstChartData[0].date,
                 tickNumber:4,
                 // max: endDate[endDate.length - 1].date
               },
@@ -170,7 +165,7 @@ const page = () => {
       <div className="flex flex-row w-[100%] justify-evenly">
         <div className="flex flex-col items-center w-[50%] mx-auto">
           <p className="text-xl text-center font-serif mb-3 mt-3">PRZEBIEGI - ZAKUPY SPOŻYWCZE OD KATEGORI</p>
-          {!firstChartData ? 
+          {!thirdChartData ? 
             <Box sx={{width: "80%" }}>
               <Skeleton animation="wave" sx={{height:300}}/>
             </Box>
@@ -181,34 +176,35 @@ const page = () => {
                 label: "Data",
                 dataKey: "date",
                 valueFormatter: (v: any) => new Date(v).toISOString().split('T')[0],
-                min: endDate[0].date,
+                min: thirdChartData[0].date,
                 tickNumber:4,
                 // max: endDate[endDate.length - 1].date
               },
             ]}
-            series={Object.keys(keyToLabel).map((key) => ({
+            series={Object.keys(keyToLabel_products).map((key) => ({
               dataKey: key,
-              label: keyToLabel[key],
-              color: colors[key],
+              label: keyToLabel_products[key],
+              color: colors_products[key],
               showMark: false,
               // ...stackStrategy,
             }))}
-            dataset={firstChartData}
+            dataset={thirdChartData}
             {...customize}
             /> 
           }
         </div>
         <div className="flex w-[50%] flex-col  items-center mx-auto">
           <p className="text-xl text-center font-serif mt-3 mb-3">PODZIAŁ ZAKUPÓW SPOŻYWCZYCH NA KATEGORIE</p>
-          {prices ? 
+          {productsPrices ? 
         <PieChart
             series={[
               {
                 data: [
-                  { id: 0, value: prices.sumEntertainmentPrice, label: 'Rozrywka' },
-                  { id: 1, value: prices.sumShopPrice, label: 'Zakupy spozywcze' },
-                  { id: 2, value: prices.sumTransportPrice, label: 'Transport' },
-                  { id: 3, value: prices.sumOtherPrice, label: 'Inne' },
+                  { id: 0, value: productsPrices.Alkohol, label: 'Alkohol' },
+                  { id: 1, value: productsPrices.Pozywienie, label: 'Pozywienie' },
+                  { id: 2, value: productsPrices.art_budowlany, label: 'Artykuły budowlane' },
+                  { id: 3, value: productsPrices.art_papier, label: 'Artykuły papiernicze' },
+                  { id: 4, value: productsPrices.art_gosp_dom, label: 'Artykuły gosp dom' },
                 ],
               },
             ]}
