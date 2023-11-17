@@ -6,7 +6,10 @@ import Skeleton from '@mui/material/Skeleton';
 import { LineChart } from "@mui/x-charts/LineChart";
 import { PieChart } from '@mui/x-charts/PieChart';
 import { useEffect, useState } from "react";
-
+import 'react-date-range/dist/styles.css'; // main style file
+import 'react-date-range/dist/theme/default.css'; // theme css file
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
+import MyDatePickerModal from "@/components/dateDialog";
 
 const page = () => {
   const path = "http://localhost:5000/api/v1";
@@ -15,13 +18,25 @@ const page = () => {
   const [thirdChartData,setThirdChartData] = useState<any>()
   const [prices, setPrices] = useState<any>(null)
   const [productsPrices, setProductsPrices] = useState<any>(null)
+  const [dateRange, setDateRange] = useState({
+    startDate: new Date(),
+    endDate: new Date(),
+    key: 'selection',
+  });  const [loading,setLoading] = useState(true)
+  const [isModalOpen, setModalOpen] = useState(false);
 
-  
 
-  const [loading,setLoading] = useState(true)
+  const handleOpenModal = () => {
+    setModalOpen(true);
+  };
+  const handleCloseModal = () => {
+    setModalOpen(false);
+  };
 
-  const getData = async() =>{
-    const allDataNeeded = await axiosInstance.get(`${path}/product/neededData?date1=x&&date2=x`)
+
+  const getData = async(firstDate:string,secondDate:String) =>{
+
+    const allDataNeeded = await axiosInstance.get(`${path}/product/neededData?date1=${firstDate}&&date2=${secondDate}`)
       .then(
         res=>{
           console.log("HALO RES-END:",res.data.endData)
@@ -53,7 +68,13 @@ const page = () => {
 
   useEffect(()=>{
     const fetch = async()=>{
-      await getData()
+      const todayDate = new Date() 
+      const year = todayDate.getFullYear();
+      const month = String(todayDate.getMonth() + 1).padStart(2, '0'); 
+      const day = String(todayDate.getDate()).padStart(2, '0');
+      const today = `${year}-${month}-${day}`;
+      const firstDay = `${year}-${month}-01`;
+      await getData(firstDay,today)
     }
     fetch()
     setLoading(false)
@@ -91,23 +112,26 @@ const page = () => {
     art_papier: "#7A7265"
   };
 
-  // const stackStrategy = {
-  //   stack: "total",
-  //   area: false,
-  //   stackOffset: "none", // To stack 0 on top of others
-  // } as const;
-
   const customize = {
     height: 300,
     legend: { hidden: true },
     margin: { top: 5 },
     stackingOrder: "descending",
   };
-  console.log("HALO",firstChartData,"third",thirdChartData)
+
+  const selectionRange = {
+    startDate: new Date(),
+    endDate: new Date(),
+    key: 'selection',
+  }
 
   return (
-    <div className="p-10 w-[100%] flex flex-col items-center justify-center">
-      <div className="flex flex-row w-[100%] justify-evenly">
+    <div className="pr-10 pl-10 pt-4 w-[100%] flex flex-col items-center justify-center">
+  
+      <button className="p-2 text-white font-sans rounded-2xl mb-6 bg-[#2A2A2A]" onClick={handleOpenModal}> Zmień zakres analizy</button>
+      <MyDatePickerModal open={isModalOpen} handleClose={handleCloseModal} dateRange={dateRange} setDateRange={setDateRange} getData={getData}/>
+
+        <div className="flex flex-row w-[100%] justify-evenly">
         <div className="flex flex-col items-center w-[50%] mx-auto">
         <p className="text-xl font-serif text-center mb-3">PRZEBIEGI - WYDATKI OD KATEGORII</p>
           {!firstChartData ? 
