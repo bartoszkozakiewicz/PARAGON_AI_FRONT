@@ -3,8 +3,16 @@
 import React, { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import Image from "next/image";
+import { axiosInstance } from "@/utils/axiosInstace";
+const path = "http://localhost:5000/api/v1";
 
 export default function MyDropzone() {
+
+  const sendParagon = async () =>{
+    await axiosInstance.post(`${path}/paragon/getParagon`, {"msg":"test"})
+  }
+  sendParagon()
+
   const onDrop = useCallback((acceptedFiles: any) => {
     acceptedFiles.forEach((file: any) => {
       const reader = new FileReader();
