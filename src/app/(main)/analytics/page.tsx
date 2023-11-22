@@ -135,8 +135,9 @@ const page = () => {
         <div className="flex flex-col items-center w-[50%] mx-auto">
         <p className="text-xl font-serif text-center mb-3">PRZEBIEGI - WYDATKI OD KATEGORII</p>
           {!firstChartData ? 
-            <Box sx={{width: "80%" }}>
-              <Skeleton animation="wave" sx={{height:300}}/>
+            <Box sx={{width: "90%",marginTop: -10 }}>
+              <Skeleton animation="wave" sx={{height:400}}/>
+              
             </Box>
           :
             <LineChart
@@ -179,8 +180,14 @@ const page = () => {
             width={600}
             height={200}
             />: 
-            <Box sx={{width: "80%" }}>
-              <Skeleton animation="wave" sx={{height:300}}/>
+            <Box sx={{marginLeft:20,marginTop:7, width: "80%" ,display:"flex", flexDirection:"row"}}>
+              <Skeleton variant="circular" width={180} height={180}/>
+              <Box sx={{display:"flex",flexDirection:"column",marginLeft:8,marginTop:4}}>
+                <Skeleton animation="wave" sx={{height:20,width:60}}/>
+                <Skeleton animation="wave" sx={{height:20,width:60}}/>
+                <Skeleton animation="wave" sx={{height:20,width:60}}/>
+                <Skeleton animation="wave" sx={{height:20,width:60}}/>
+              </Box>
             </Box>
           }
         </div> 
@@ -190,8 +197,8 @@ const page = () => {
         <div className="flex flex-col items-center w-[50%] mx-auto">
           <p className="text-xl text-center font-serif mb-3 mt-3">PRZEBIEGI - ZAKUPY SPOŻYWCZE OD KATEGORI</p>
           {!thirdChartData ? 
-            <Box sx={{width: "80%" }}>
-              <Skeleton animation="wave" sx={{height:300}}/>
+            <Box sx={{width: "90%",marginTop: -10 }}>
+              <Skeleton animation="wave" sx={{height:400}}/>
             </Box>
           :
             <LineChart
@@ -235,8 +242,15 @@ const page = () => {
             width={600}
             height={200}
             />: 
-            <Box sx={{width: "80%" }}>
-              <Skeleton animation="wave" sx={{height:300}}/>
+            <Box sx={{marginLeft:20,marginTop:7, width: "80%" ,display:"flex", flexDirection:"row"}}>
+              <Skeleton variant="circular" width={180} height={180}/>
+              <Box sx={{display:"flex",flexDirection:"column",marginLeft:8,marginTop:4}}>
+                <Skeleton animation="wave" sx={{height:20,width:60}}/>
+                <Skeleton animation="wave" sx={{height:20,width:60}}/>
+                <Skeleton animation="wave" sx={{height:20,width:60}}/>
+                <Skeleton animation="wave" sx={{height:20,width:60}}/>
+                <Skeleton animation="wave" sx={{height:20,width:60}}/>
+              </Box>
             </Box>
           }
         </div>

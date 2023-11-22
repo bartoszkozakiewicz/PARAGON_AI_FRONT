@@ -13,7 +13,7 @@ export default function AuthGuard({ children }: Props) {
   const { user, isAuthenticated } = useAuth();
   const { push } = useRouter();
   const pathname = usePathname();
-  console.log("jestem", isAuthenticated);
+  // console.log("jestem", isAuthenticated);
   useEffect(() => {
     if (isAuthenticated && (pathname === "/login" || pathname === "/register")) {
       push("/");

@@ -7,7 +7,7 @@ import Link from "next/link";
 
 const SidebaR = () => {
   const sites = [
-    { id: 1, name: "Baza danych", link: "/database" },
+    { id: 1, name: "Baza danych", link: "/" },
     { id: 2, name: "Dodawanie paragonu", link: "/add-paragon" },
     { id: 3, name: "Analiza danych", link: "/analytics" },
     { id: 4, name: "Galeria paragonów", link: "/gallery" },

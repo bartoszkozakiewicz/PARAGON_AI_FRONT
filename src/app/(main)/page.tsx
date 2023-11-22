@@ -1,5 +1,12 @@
-import Image from "next/image";
+import React from "react";
+import Data_grid from "@/components/database-section/data_grid";
 
-export default function Home() {
-  return <main className="flex min-h-screen flex-col items-center justify-between p-24">HEJ</main>;
-}
+const page = () => {
+  return( 
+    <div className="w-[80%] flex flex-col mt-12 mx-auto">
+      <Data_grid/>
+    </div>
+    )
+};
+
+export default page;
