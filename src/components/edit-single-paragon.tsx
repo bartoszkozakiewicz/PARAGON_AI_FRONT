@@ -1,9 +1,9 @@
 'use client';
 
-import React, { startTransition, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { axiosInstance } from '@/utils/axiosInstace';
 import OneProduct from '@/components/add-products-section/one_products';
-import { Product, Shop, Universal } from '../../../types';
+import { Product, Universal, Shop } from '@/types';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import Button from '@mui/material/Button';
@@ -11,40 +11,8 @@ import AddIcon from '@mui/icons-material/Add';
 import TextField from '@mui/material/TextField/TextField';
 import { useSearchParams } from 'next/navigation';
 import dayjs from 'dayjs';
-import { debounce } from 'lodash';
 
 const path = 'http://localhost:5000/api/v1';
-
-//Do przemyslenia lepszego  wszystko ze static - z useClient nie mozna
-
-// export async function getStaticPaths() {
-
-//   const response = await axiosInstance.get(`${path}/product/allData`)
-//   console.log(response.data.shopping)
-//   const createdDataPaths = response.data.shoppingData.map((item:any)=>{
-//     return{
-//       params:{
-//         editId: item.shopId.toString()
-//       }
-//     }
-//   })
-//   return {
-//     paths: createdDataPaths,
-//     fallback: 'blocking',
-//   };
-//  }
-
-//  export async function generateStaticParams(context:any) {
-//   const { editId } = context.params
-//   const response = await axiosInstance.get(`${path}/product/paragon?shopId=${editId}`)
-//   console.log("server side data", response.data)
-//   return {
-//     props: {
-//       actualData: response.data
-//     },
-//   };
-//  }
-
 const list_categories = [
   { id: 1, category: 'Pozywienie' },
   { id: 2, category: 'art_budowlany' },
@@ -53,8 +21,7 @@ const list_categories = [
   { id: 5, category: 'Alkohol' },
 ];
 
-const page = (props: any) => {
-  console.log('PROPSY', props);
+const EditSingleParagon = () => {
   const [actualData, setActualData] = useState<Product[] | Universal[]>([
     { name: '', price: 0, amount: 0, category: '' },
   ]);
@@ -87,8 +54,6 @@ const page = (props: any) => {
   const handleSendData = async () => {
     console.log('Send data');
     let sumPrice = 0;
-    setStartData(actualData);
-
     actualData.forEach((prod) => {
       sumPrice += Number(prod.price);
     });
@@ -103,6 +68,7 @@ const page = (props: any) => {
       )
       .then((res: any) => {
         console.log(res);
+        setStartData(actualData);
       })
       .catch((e: any) => console.log(e));
   };
@@ -118,16 +84,11 @@ const page = (props: any) => {
       }
       return true;
     };
-
-    const debouncedCompareData = debounce(() => {
-      if (!arraysAreEqual(actualData, startData)) {
-        setChangedData(true);
-      } else {
-        setChangedData(false);
-      }
-    }, 300);
-
-    debouncedCompareData();
+    if (!arraysAreEqual(actualData, startData)) {
+      setChangedData(true);
+    } else {
+      setChangedData(false);
+    }
   }, [actualData, startData]);
   console.log('changed data', changedData);
 
@@ -144,8 +105,8 @@ const page = (props: any) => {
     });
 
     const getParagon = async () => {
-      const data = await axiosInstance
-        .get(`${path}/product/paragon?shopId=${searchParams.get('shopId')}`)
+      await axiosInstance
+        .get(`${path}/product/paragon?shopId=48`)
         .then((res) => {
           setActualData(res.data);
           setStartData(res.data);
@@ -189,7 +150,7 @@ const page = (props: any) => {
               changedData ? 'bg-blue-500' : 'bg-gray-400 pointer-events-none'
             } font-sans`}
           >
-            ZAPISZ ZMIANY
+            EDYTUJ
           </button>
         </div>
         <p className="font-semibold font-sans mt-3">PRODUKTY</p>
@@ -227,4 +188,4 @@ const page = (props: any) => {
   );
 };
 
-export default page;
+export default EditSingleParagon;
