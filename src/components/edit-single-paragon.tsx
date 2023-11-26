@@ -11,6 +11,7 @@ import AddIcon from '@mui/icons-material/Add';
 import TextField from '@mui/material/TextField/TextField';
 import { useSearchParams } from 'next/navigation';
 import dayjs from 'dayjs';
+import { debounce } from 'lodash';
 
 const path = 'http://localhost:5000/api/v1';
 const list_categories = [
@@ -21,7 +22,20 @@ const list_categories = [
   { id: 5, category: 'Alkohol' },
 ];
 
-const EditSingleParagon = () => {
+const Cat = {
+  pozywienie: 'Pozywienie',
+  'artykuł budowlany': 'art_budowlany',
+  'artykuł gospodarstwa domowego': 'art_gosp_dom',
+  alkohol: 'Alkohol',
+  'artykuł papierniczy': 'art_papier',
+};
+
+type Props = {
+  popUpData: any;
+  popUpShop: any;
+};
+
+const EditSingleParagon = ({ popUpData, popUpShop }: Props) => {
   const [actualData, setActualData] = useState<Product[] | Universal[]>([
     { name: '', price: 0, amount: 0, category: '' },
   ]);
@@ -54,6 +68,7 @@ const EditSingleParagon = () => {
   const handleSendData = async () => {
     console.log('Send data');
     let sumPrice = 0;
+    setStartData(actualData);
     actualData.forEach((prod) => {
       sumPrice += Number(prod.price);
     });
@@ -61,14 +76,11 @@ const EditSingleParagon = () => {
 
     await axiosInstance
       .post(
-        `${path}/product/addElement?cat=Spozywcze&&shopId=${searchParams.get(
-          'shopId',
-        )}`,
+        `${path}/product/addElement?cat=Spozywcze&&shopId=${popUpShop.id}`,
         { sumPrice, actualData, shop },
       )
       .then((res: any) => {
         console.log(res);
-        setStartData(actualData);
       })
       .catch((e: any) => console.log(e));
   };
@@ -100,21 +112,54 @@ const EditSingleParagon = () => {
     const formattedDate = `${year}-${month}-${day}`;
 
     setShop({
-      name: searchParams.get('shopName') as string,
-      date: formattedDate as string,
+      name: popUpShop.shop_name ? popUpShop.shop_name : '',
+      date: popUpShop.date,
     });
 
-    const getParagon = async () => {
-      await axiosInstance
-        .get(`${path}/product/paragon?shopId=48`)
-        .then((res) => {
-          setActualData(res.data);
-          setStartData(res.data);
-        })
-        .catch((e) => console.error(e));
-    };
-    getParagon();
+    setActualData(
+      popUpData.map((prod: any) => {
+        return {
+          name: prod.product_name,
+          price: prod.price,
+          amount: prod.ilosc,
+          category: (Cat as any)[prod.category.toLowerCase()],
+        };
+      }),
+    );
+    setStartData(
+      popUpData.map((prod: any) => {
+        return {
+          name: prod.product_name,
+          price: prod.price,
+          amount: prod.ilosc,
+          category: (Cat as any)[prod.category.toLowerCase()],
+        };
+      }),
+    );
   }, []);
+
+  //Check if data has changed
+  useEffect(() => {
+    const arraysAreEqual = (a: any, b: any) => {
+      if (a.length !== b.length) return false;
+      for (let i = 0; i < a.length; i++) {
+        for (const key in a[i]) {
+          if (a[i][key] != b[i][key]) return false;
+        }
+      }
+      return true;
+    };
+
+    const debouncedCompareData = debounce(() => {
+      if (!arraysAreEqual(actualData, startData)) {
+        setChangedData(true);
+      } else {
+        setChangedData(false);
+      }
+    }, 300);
+
+    debouncedCompareData();
+  }, [actualData, startData]);
 
   //${saveEnabled ? "bg-blue-500" : "bg-gray-400 cursor-auto"}
   return (

@@ -14,6 +14,8 @@ export default function MyDropzone() {
   const [paragon, setParagon] = useState<any>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [openParagon, setOpenParagon] = useState<boolean>(false);
+  const [popUpData, setPopUpData] = useState<any>(null);
+  const [popUpShop, setPopUpShop] = useState<any>(null);
 
   // const getStreamData = async () => {
   //   const eventSource = new EventSource(`http://127.0.0.1:5000/stream`);
@@ -26,13 +28,16 @@ export default function MyDropzone() {
   // };
 
   const sendParagon = async (paragon: Buffer) => {
-    await axiosInstance
+    const x = await axiosInstance
       .post(`${path}/paragon/getParagon`, {
         paragonBuffer: paragon,
       })
-      .then(() => {
+      .then((res) => {
         setIsLoading(false);
         setOpenParagon(true);
+        console.log('GOT IT', res.data);
+        setPopUpData(res.data.products);
+        setPopUpShop(res.data.shop);
       })
       .catch((err) => {
         console.log(err);
@@ -92,6 +97,8 @@ export default function MyDropzone() {
       <ParagonDialog
         openParagon={openParagon}
         setOpenParagon={setOpenParagon}
+        popUpData={popUpData}
+        popUpShop={popUpShop}
       />
     </div>
   );
