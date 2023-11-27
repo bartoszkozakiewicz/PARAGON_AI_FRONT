@@ -1,6 +1,6 @@
 'use client';
 
-import React, { startTransition, useEffect, useState } from 'react';
+import React, { startTransition, use, useEffect, useState } from 'react';
 import { axiosInstance } from '@/utils/axiosInstace';
 import OneProduct from '@/components/add-products-section/one_products';
 import { Product, Shop, Universal } from '../../../types';
@@ -12,6 +12,7 @@ import TextField from '@mui/material/TextField/TextField';
 import { useSearchParams } from 'next/navigation';
 import dayjs from 'dayjs';
 import { debounce } from 'lodash';
+import PositionedSnackbar from '@/components/personalSnackbar';
 
 const path = 'http://localhost:5000/api/v1';
 
@@ -54,7 +55,9 @@ const list_categories = [
 ];
 
 const page = (props: any) => {
-  console.log('PROPSY', props);
+  const [isError, setIsError] = useState<boolean>(false);
+  const [msg, setMsg] = useState<string>('');
+  const [open, setOpen] = useState<boolean>(false);
   const [actualData, setActualData] = useState<Product[] | Universal[]>([
     { name: '', price: 0, amount: 0, category: '' },
   ]);
@@ -103,8 +106,16 @@ const page = (props: any) => {
       )
       .then((res: any) => {
         console.log(res);
+        setIsError(false);
+        setMsg(res.data);
+        setOpen(true);
       })
-      .catch((e: any) => console.log(e));
+      .catch((e: any) => {
+        console.log(e);
+        setIsError(true);
+        setMsg(e.response.data);
+        setOpen(true);
+      });
   };
 
   //Check if data has changed
@@ -223,6 +234,12 @@ const page = (props: any) => {
           </Button>
         </div>
       </div>
+      <PositionedSnackbar
+        isError={isError}
+        msg={msg}
+        open={open}
+        setOpen={setOpen}
+      />
     </div>
   );
 };

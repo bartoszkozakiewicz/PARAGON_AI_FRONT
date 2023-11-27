@@ -11,7 +11,11 @@ import AddIcon from '@mui/icons-material/Add';
 import TextField from '@mui/material/TextField/TextField';
 import { useSearchParams } from 'next/navigation';
 import dayjs from 'dayjs';
-import { debounce } from 'lodash';
+import { debounce, set } from 'lodash';
+import Snackbar, { SnackbarOrigin } from '@mui/material/Snackbar';
+import Slide from '@mui/material/Slide';
+import PositionedSnackbar from './personalSnackbar';
+import CustomizedSnackbar from './personalSnackbar';
 
 const path = 'http://localhost:5000/api/v1';
 const list_categories = [
@@ -36,6 +40,9 @@ type Props = {
 };
 
 const EditSingleParagon = ({ popUpData, popUpShop }: Props) => {
+  const [isError, setIsError] = useState<boolean>(false);
+  const [msg, setMsg] = useState<string>('');
+  const [open, setOpen] = useState<boolean>(false);
   const [actualData, setActualData] = useState<Product[] | Universal[]>([
     { name: '', price: 0, amount: 0, category: '' },
   ]);
@@ -81,8 +88,16 @@ const EditSingleParagon = ({ popUpData, popUpShop }: Props) => {
       )
       .then((res: any) => {
         console.log(res);
+        setIsError(false);
+        setMsg(res.data);
+        setOpen(true);
       })
-      .catch((e: any) => console.log(e));
+      .catch((e: any) => {
+        console.log(e);
+        setIsError(true);
+        setMsg(e.response.data);
+        setOpen(true);
+      });
   };
 
   //Check if data has changed
@@ -228,6 +243,12 @@ const EditSingleParagon = ({ popUpData, popUpShop }: Props) => {
             <AddIcon />
           </Button>
         </div>
+        <CustomizedSnackbar
+          isError={isError}
+          msg={msg}
+          open={open}
+          setOpen={setOpen}
+        />
       </div>
     </div>
   );
