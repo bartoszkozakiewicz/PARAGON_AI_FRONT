@@ -32,7 +32,6 @@ export default function CustomizedSnackbar({
     }
     setOpen(false);
   };
-  console.log('mes', msg);
 
   return (
     <Snackbar

@@ -142,7 +142,12 @@ const page = () => {
           .catch((e: any) => {
             console.log(e);
             setIsError(true);
-            setMsg(e.response.data);
+            if (e.response.status === 500) {
+              setMsg('Server 500 Error...');
+            } else {
+              setMsg('Coś poszło nie tak, spróbuj ponownie...');
+            }
+
             setOpenSnackbar(true);
           });
         break;
@@ -163,7 +168,12 @@ const page = () => {
           .catch((e: any) => {
             console.log(e.response.data);
             setIsError(true);
-            setMsg(e.response.data);
+            if (e.response.status === 500) {
+              setMsg('Server 500 Error...');
+            } else {
+              setMsg('Coś poszło nie tak, spróbuj ponownie...');
+            }
+
             setOpenSnackbar(true);
           });
         break;
@@ -184,7 +194,12 @@ const page = () => {
           .catch((e: any) => {
             console.log(e);
             setIsError(true);
-            setMsg(e.response.data);
+            if (e.response.status === 500) {
+              setMsg('Server 500 Error...');
+            } else {
+              setMsg('Coś poszło nie tak, spróbuj ponownie...');
+            }
+
             setOpenSnackbar(true);
           });
         break;
@@ -205,8 +220,11 @@ const page = () => {
           .catch((e: any) => {
             console.log(e);
             setIsError(true);
-            setMsg(e.response.data.msg);
-            console.log('msg ', e.response.data);
+            if (e.response.status === 500) {
+              setMsg('Server 500 Error...');
+            } else {
+              setMsg('Coś poszło nie tak, spróbuj ponownie...');
+            }
             setOpenSnackbar(true);
           });
         break;
@@ -252,7 +270,6 @@ const page = () => {
       setSaveEnabled(false);
     }
   };
-  console.log('Actual', actualData);
   // -------------------------------------------------------------------
   useEffect(() => {
     if (activeButton === 'Spozywcze') {

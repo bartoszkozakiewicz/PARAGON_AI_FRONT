@@ -4,7 +4,7 @@ import { axiosInstance } from '@/utils/axiosInstace';
 import React, { use, useEffect, useState } from 'react';
 import Image from 'next/image';
 const path = 'http://localhost:5000/api/v1';
-
+import CustomizedSnackbar from '@/components/personalSnackbar';
 // export async function generateStaticParams() {
 //   // const images = await axiosInstance
 //   //   .get(`${path}/paragon/getImages`)
@@ -18,12 +18,24 @@ const path = 'http://localhost:5000/api/v1';
 
 const page = ({ params: { id } }: { params: { id: string } }) => {
   const [images, setImages] = useState<any>([]);
+  const [msg, setMsg] = useState<string>('');
+  const [open, setOpen] = useState<boolean>(false);
+  const [isError, setIsError] = useState<boolean>(false);
   console.log('IDID', id);
   useEffect(() => {
     const getImages = async () => {
       const images = await axiosInstance
         .get(`${path}/paragon/getImages?date=${id}`)
-        .then((res) => res.data.images);
+        .then((res) => res.data.images)
+        .catch((e) => {
+          if (e.response.status === 500) {
+            setMsg('Server 500 Error...');
+          } else {
+            setMsg('Coś poszło nie tak, spróbuj ponownie...');
+          }
+          setIsError(true);
+          setOpen(true);
+        });
       setImages(images);
     };
     getImages();
@@ -50,6 +62,12 @@ const page = ({ params: { id } }: { params: { id: string } }) => {
           </a>
         </div>
       ))}
+      <CustomizedSnackbar
+        isError={isError}
+        msg={msg}
+        open={open}
+        setOpen={setOpen}
+      />
     </div>
   );
 };

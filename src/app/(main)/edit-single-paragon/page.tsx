@@ -111,9 +111,13 @@ const page = (props: any) => {
         setOpen(true);
       })
       .catch((e: any) => {
-        console.log(e);
+        console.log(e.response);
         setIsError(true);
-        setMsg(e.response.data);
+        if (e.response.status === 500) {
+          setMsg('Server 500 Error...');
+        } else {
+          setMsg('Coś poszło nie tak, spróbuj ponownie...');
+        }
         setOpen(true);
       });
   };
@@ -161,7 +165,16 @@ const page = (props: any) => {
           setActualData(res.data);
           setStartData(res.data);
         })
-        .catch((e) => console.error(e));
+        .catch((e) => {
+          console.error(e);
+          setIsError(true);
+          if (e.response.status === 500) {
+            setMsg('Server 500 Error...');
+          } else {
+            setMsg('Coś poszło nie tak, spróbuj ponownie...');
+          }
+          setOpen(true);
+        });
     };
     getParagon();
   }, []);

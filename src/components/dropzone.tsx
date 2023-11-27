@@ -9,6 +9,7 @@ import WebSocketClient from '@/utils/webSocketClient';
 import LinearProgress from '@mui/material/LinearProgress';
 import Box from '@mui/material/Box';
 import ParagonDialog from './paragonDialog';
+import CustomizedSnackbar from './personalSnackbar';
 
 export default function MyDropzone() {
   const [paragon, setParagon] = useState<any>(null);
@@ -16,7 +17,9 @@ export default function MyDropzone() {
   const [openParagon, setOpenParagon] = useState<boolean>(false);
   const [popUpData, setPopUpData] = useState<any>(null);
   const [popUpShop, setPopUpShop] = useState<any>(null);
-
+  const [msg, setMsg] = useState<string>('');
+  const [open, setOpen] = useState<boolean>(false);
+  const [isError, setIsError] = useState<boolean>(false);
   // const getStreamData = async () => {
   //   const eventSource = new EventSource(`http://127.0.0.1:5000/stream`);
   //   eventSource.onmessage = (event) =>
@@ -40,7 +43,15 @@ export default function MyDropzone() {
         setPopUpShop(res.data.shop);
       })
       .catch((err) => {
-        console.log(err);
+        console.log(err.response.status);
+        if (err.response.status === 500) {
+          setMsg('Server 500 Error...');
+        } else {
+          setMsg('Coś poszło nie tak, spróbuj ponownie...');
+        }
+        setIsLoading(false);
+        setIsError(true);
+        setOpen(true);
       });
   };
 
@@ -99,6 +110,12 @@ export default function MyDropzone() {
         setOpenParagon={setOpenParagon}
         popUpData={popUpData}
         popUpShop={popUpShop}
+      />
+      <CustomizedSnackbar
+        isError={isError}
+        msg={msg}
+        open={open}
+        setOpen={setOpen}
       />
     </div>
   );

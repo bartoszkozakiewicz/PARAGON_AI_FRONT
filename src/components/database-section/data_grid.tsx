@@ -99,7 +99,6 @@ const Data_grid = () => {
   ]);
   const [selectedRows, setSelectedRows] = useState<any>([]);
   const [isLoading, setIsLoading] = useState(true);
-  console.log('selected Rows', selectedRows);
 
   const handleDeleteElements = async () => {
     console.log('Usuwam dane');
@@ -121,7 +120,11 @@ const Data_grid = () => {
       })
       .catch((error) => {
         setIsError(true);
-        setMsg(error.response.data);
+        if (error.response.status === 500) {
+          setMsg('Server 500 Error...');
+        } else {
+          setMsg('Coś poszło nie tak, spróbuj ponownie...');
+        }
         setOpen(true);
         console.error('Błąd usuwania danych', error);
       });

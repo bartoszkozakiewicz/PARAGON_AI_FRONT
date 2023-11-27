@@ -95,7 +95,11 @@ const EditSingleParagon = ({ popUpData, popUpShop }: Props) => {
       .catch((e: any) => {
         console.log(e);
         setIsError(true);
-        setMsg(e.response.data);
+        if (e.response.status === 500) {
+          setMsg('Server 500 Error...');
+        } else {
+          setMsg('Coś poszło nie tak, spróbuj ponownie...');
+        }
         setOpen(true);
       });
   };
