@@ -17,6 +17,7 @@ import { Product, Shop, Universal } from '../../../types/';
 import AlertSave from '@/components/add-products-section/alertSave';
 import { axiosInstance } from '@/utils/axiosInstace';
 import CustomizedSnackbar from '@/components/personalSnackbar';
+import { AxiosResponse } from 'axios';
 
 const page = () => {
   const path = 'http://localhost:5000/api/v1';
