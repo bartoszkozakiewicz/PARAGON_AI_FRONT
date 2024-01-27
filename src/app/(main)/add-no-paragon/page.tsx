@@ -1,0 +1,459 @@
+'use client';
+
+import TextField from '@mui/material/TextField/TextField';
+import React, {
+  useState,
+  useRef,
+  useEffect,
+  ButtonHTMLAttributes,
+} from 'react';
+
+import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import Button from '@mui/material/Button';
+import AddIcon from '@mui/icons-material/Add';
+import OneProduct from '@/components/add-products-section/one_products';
+import { Product, Shop, Universal } from '../../../types/';
+import AlertSave from '@/components/add-products-section/alertSave';
+import { axiosInstance } from '@/utils/axiosInstace';
+import CustomizedSnackbar from '@/components/personalSnackbar';
+import { AxiosResponse } from 'axios';
+import { useSum } from '../../../context/moneyContext';
+
+// -------------------------------------------------------------------
+
+const page = () => {
+  const path = 'http://localhost:5000/api/v1';
+  const { updateSum } = useSum();
+  //---------------------------useRef---------------------------------
+  const b1Ref = useRef<HTMLButtonElement | null>(null);
+  const b2Ref = useRef<HTMLButtonElement | null>(null);
+  const b3Ref = useRef<HTMLButtonElement | null>(null);
+  const b4Ref = useRef<HTMLButtonElement | null>(null);
+
+  // --------------------------useState--------------------------------
+  const [isError, setIsError] = useState<boolean>(false);
+  const [msg, setMsg] = useState<string>('');
+  const [openSnackbar, setOpenSnackbar] = useState<boolean>(false);
+
+  const [title, setTitle] = useState<string>('PRODUKTY');
+  const [open, setOpen] = useState<boolean>(false);
+  const [alertAccepted, setAlertAccepted] = useState<boolean>(true);
+
+  const [saveEnabled, setSaveEnabled] = useState<boolean>(false);
+
+  const [actualData, setActualData] = useState<Product[] | Universal[]>([
+    { name: '', price: 0, amount: 0, category: '' },
+  ]);
+
+  const [shop, setShop] = useState<Shop>({ name: '', date: '' });
+  const [bPos, setBPos] = useState({
+    b1_x: 0,
+    b1_y: 0,
+    b2_x: 0,
+    b3_x: 0,
+    b4_x: 0,
+  });
+  const [activeButton, setActiveButton] = useState<any>('Spozywcze');
+  const [nextButton, setNextButton] = useState<string>('Spozywcze');
+  const [x, setX] = useState('15px');
+  const list_categories = [
+    { id: 1, category: 'Pozywienie' },
+    { id: 2, category: 'art_budowlany' },
+    { id: 3, category: 'art_gosp_dom' },
+    { id: 4, category: 'art_papier' },
+    { id: 5, category: 'Alkohol' },
+  ];
+
+  // --------------------------Functions----------------------------------
+  const isInCurrentMonth = (date: any) => {
+    const currentDate = new Date(); // Aktualna data
+    const currentMonth = currentDate.getMonth(); // Numer aktualnego miesiąca
+    const currentYear = currentDate.getFullYear(); // Rok aktualnej daty
+
+    const targetDate = new Date(date);
+    return (
+      targetDate.getMonth() === currentMonth &&
+      targetDate.getFullYear() === currentYear
+    );
+  };
+
+  const settingButtonsTransition = (buttonName: String) => {
+    setActiveButton(buttonName);
+    setActualData([{ name: '', price: 0, amount: 0, category: '' }]);
+
+    if (buttonName === 'Spozywcze') {
+      setTitle('PRODUKTY');
+      setX(`${15}px`);
+    } else if (buttonName === 'Rozrywka') {
+      setTitle('AKTYWNOŚCI');
+      setX(`${bPos.b2_x - bPos.b1_x + 15}px`);
+    } else if (buttonName === 'Transport') {
+      setTitle('PODRÓŻE');
+      setX(`${bPos.b3_x - bPos.b1_x + 15}px`);
+    } else if (buttonName === 'Pozostałe') {
+      setTitle('SPERSONALIZOWANE WYDATKI');
+      setX(`${bPos.b4_x - bPos.b1_x + 15}px`);
+    }
+  };
+
+  const handleButtonClick = (buttonName: string) => {
+    if (isSomeFilled()) {
+      setNextButton(buttonName);
+      setOpen(true);
+    } else {
+      settingButtonsTransition(buttonName);
+    }
+  };
+
+  const handleAddElement = () => {
+    if (activeButton === 'Spozywcze') {
+      setActualData((prevProducts: any) => {
+        const newProducts = [
+          ...prevProducts,
+          { name: '', price: 0, amount: 0, category: '' },
+        ];
+        return newProducts;
+      });
+    } else {
+      setActualData((prevProducts: any) => {
+        const newProducts = [
+          ...prevProducts,
+          { name: '', price: 0, amount: 0 },
+        ];
+        return newProducts;
+      });
+    }
+  };
+
+  const handleDeleteProduct = (num: number) => {
+    setActualData((prevProducts) => {
+      const updatedProducts = [...prevProducts];
+      updatedProducts.splice(num, 1);
+      return updatedProducts;
+    });
+  };
+
+  const handleSendData = async () => {
+    let sumPrice = 0;
+    actualData.forEach((prod) => {
+      sumPrice += Number(prod.price);
+    });
+    switch (activeButton) {
+      case 'Spozywcze':
+        await axiosInstance
+          .post(`${path}/product/addElement?cat=${activeButton}`, {
+            sumPrice,
+            actualData,
+            shop,
+          })
+          .then((res: any) => {
+            if (isInCurrentMonth(shop.date)) {
+              updateSum('+', sumPrice);
+            }
+            setActualData([{ name: '', price: 0, amount: 0, category: '' }]);
+            setIsError(false);
+            setMsg(res.data);
+            setOpenSnackbar(true);
+          })
+          .catch((e: any) => {
+            if (isInCurrentMonth(shop.date)) {
+              updateSum('-', sumPrice);
+            }
+            setIsError(true);
+            if (e.response.status === 500) {
+              setMsg('Server 500 Error...');
+            } else {
+              setMsg('Coś poszło nie tak, spróbuj ponownie...');
+            }
+
+            setOpenSnackbar(true);
+          });
+        break;
+      case 'Rozrywka':
+        await axiosInstance
+          .post(`${path}/product/addElement?cat=${activeButton}`, {
+            actualData,
+            shop,
+          })
+          .then((res: any) => {
+            if (isInCurrentMonth(shop.date)) {
+              updateSum('+', sumPrice);
+            }
+            setActualData([{ name: '', price: 0, amount: 0 }]);
+            setIsError(false);
+            setMsg(res.data);
+            setOpenSnackbar(true);
+          })
+          .catch((e: any) => {
+            setIsError(true);
+            if (isInCurrentMonth(shop.date)) {
+              updateSum('-', sumPrice);
+            }
+            if (e.response.status === 500) {
+              setMsg('Server 500 Error...');
+            } else {
+              setMsg('Coś poszło nie tak, spróbuj ponownie...');
+            }
+
+            setOpenSnackbar(true);
+          });
+        break;
+      case 'Transport':
+        await axiosInstance
+          .post(`${path}/product/addElement?cat=${activeButton}`, {
+            actualData,
+            shop,
+          })
+          .then((res: any) => {
+            if (isInCurrentMonth(shop.date)) {
+              updateSum('+', sumPrice);
+            }
+            setActualData([{ name: '', price: 0, amount: 0 }]);
+            setIsError(false);
+            setMsg(res.data);
+            setOpenSnackbar(true);
+          })
+          .catch((e: any) => {
+            console.log(e);
+            setIsError(true);
+            if (isInCurrentMonth(shop.date)) {
+              updateSum('-', sumPrice);
+            }
+            if (e.response.status === 500) {
+              setMsg('Server 500 Error...');
+            } else {
+              setMsg('Coś poszło nie tak, spróbuj ponownie...');
+            }
+
+            setOpenSnackbar(true);
+          });
+        break;
+      case 'Pozostałe':
+        await axiosInstance
+          .post(`${path}/product/addElement?cat=${activeButton}`, {
+            actualData,
+            shop,
+          })
+          .then((res: any) => {
+            if (isInCurrentMonth(shop.date)) {
+              updateSum('+', sumPrice);
+            }
+            setActualData([{ name: '', price: 0, amount: 0 }]);
+            setIsError(false);
+            setMsg(res.data);
+            setOpenSnackbar(true);
+          })
+          .catch((e: any) => {
+            if (isInCurrentMonth(shop.date)) {
+              updateSum('-', sumPrice);
+            }
+            setIsError(true);
+            if (e.response.status === 500) {
+              setMsg('Server 500 Error...');
+            } else {
+              setMsg('Coś poszło nie tak, spróbuj ponownie...');
+            }
+            setOpenSnackbar(true);
+          });
+        break;
+    }
+  };
+
+  function isAnProduct(obj: any): obj is Product {
+    return (
+      'name' in obj && 'amount' in obj && 'category' in obj && 'price' in obj
+    );
+  }
+
+  const isSomeFilled = (): boolean => {
+    const isNotEmpty = actualData.some((item) => {
+      return (
+        item.name !== '' ||
+        Number(item.amount) !== 0 ||
+        Number(item.amount) !== 0 ||
+        (!isAnProduct(item) ? false : isAnProduct(item) && item.category !== '')
+      );
+    });
+    return isNotEmpty;
+  };
+
+  const isDataEqual = () => {
+    const isNotEmpty = actualData.every(
+      (item) =>
+        item.name !== '' &&
+        Number(item.amount) !== 0 &&
+        Number(item.amount) !== 0 &&
+        (!isAnProduct(item) || (isAnProduct(item) && item.category !== '')),
+    );
+    const otherNotEmpty =
+      activeButton === 'Spozywcze'
+        ? shop.name !== '' && shop.date !== ''
+        : shop.date !== '';
+    if (isNotEmpty && otherNotEmpty) {
+      console.log('Not empty');
+      setSaveEnabled(true);
+    } else {
+      setSaveEnabled(false);
+    }
+  };
+  // -------------------------------------------------------------------
+  useEffect(() => {
+    if (activeButton === 'Spozywcze') {
+      setActualData([{ name: '', price: 0, amount: 0, category: '' }]);
+    } else {
+      setActualData([{ name: '', price: 0, amount: 0 }]);
+    }
+  }, [activeButton]);
+
+  useEffect(() => {
+    isDataEqual();
+  }, [actualData, shop]);
+
+  useEffect(() => {
+    setBPos((prevData: any) => {
+      if (b1Ref.current && b2Ref.current && b3Ref.current && b4Ref.current) {
+        return {
+          ...prevData,
+          b1_x: b1Ref.current.getBoundingClientRect().x,
+          b1_y: b1Ref.current.getBoundingClientRect().y,
+          b2_x: b2Ref.current.getBoundingClientRect().x,
+          b3_x: b3Ref.current.getBoundingClientRect().x,
+          b4_x: b4Ref.current.getBoundingClientRect().x,
+        };
+      }
+    });
+  }, []);
+
+  return (
+    <div className="flex flex-col items-center justify-center w-full h-full ">
+      <AlertSave
+        nextButton={nextButton}
+        open={open}
+        setOpen={setOpen}
+        setAlertAccepted={setAlertAccepted}
+        settingButtonsTransition={(nextButton) =>
+          settingButtonsTransition(nextButton)
+        }
+      />
+      <p className="text-lg font-semibold font-poppins mb-6 mt-6">
+        Uzupełnij swoją bazę danych o zaległe wydatki
+      </p>
+      <div className="flex flex-col items-center gap-3 w-[70%] h-[100%]">
+        <div className="space-x-4 relative w-[100%] mt-10">
+          <div
+            className="h-[2px] min-w-[75px] bg-blue-500 transition-transform transform-gpu absolute bottom-0"
+            style={{
+              width: '20px',
+              transform: `translateX(${x})`,
+              transition: 'transform 0.4s',
+            }}
+          ></div>
+
+          <button
+            ref={b1Ref}
+            className="w-[100px] text-start"
+            onClick={() => handleButtonClick('Spozywcze')}
+          >
+            Zakupy S
+          </button>
+          <button
+            ref={b2Ref}
+            className="w-[100px] text-start"
+            onClick={() => handleButtonClick('Rozrywka')}
+          >
+            Rozrywka
+          </button>
+          <button
+            ref={b3Ref}
+            className="w-[100px] text-start"
+            onClick={() => handleButtonClick('Transport')}
+          >
+            Transport
+          </button>
+          <button
+            ref={b4Ref}
+            className="w-[100px] text-start"
+            onClick={() => handleButtonClick('Pozostałe')}
+          >
+            Pozostałe
+          </button>
+        </div>
+
+        <div className="flex flex-col gap-3 p-6 shadow-custom rounded-lg w-[100%] min-h-[500px] max-h-[500px] items-center">
+          <div className="flex flex-row items-left w-[100%] gap-4 justify-start">
+            {activeButton === 'Spozywcze' && (
+              <TextField
+                id="outlined-basic"
+                label="Nazwa Sklepu"
+                variant="outlined"
+                onChange={(e) =>
+                  setShop((prevData: Shop) => ({
+                    ...prevData,
+                    name: e.target.value,
+                  }))
+                }
+              />
+            )}
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DatePicker
+                onChange={(date: any) =>
+                  setShop((prevData: Shop) => ({
+                    ...prevData,
+                    date: date.format('YYYY-MM-DD'),
+                  }))
+                }
+              />
+            </LocalizationProvider>
+            <button
+              onClick={handleSendData}
+              className={`ml-auto rounded-xl p-3 text-white ${
+                saveEnabled ? 'bg-blue-500' : 'bg-gray-400 cursor-auto'
+              }  font-sans`}
+            >
+              DODAJ
+            </button>
+          </div>
+          <p className="font-semibold font-sans mt-3">{title}</p>
+          <div className="flex flex-col gap-3 max-h-[300px] p-6 overflow-y-auto">
+            {actualData.map((product: any, index: number) => (
+              <OneProduct
+                activeButton={activeButton}
+                key={index}
+                num={index}
+                list_categories={list_categories}
+                product={product}
+                setProducts={setActualData}
+                handleDeleteProduct={(num: number) => handleDeleteProduct(num)}
+              />
+            ))}
+          </div>
+          <div className="flex justify-center mt-4">
+            <Button
+              variant="outlined"
+              color="primary"
+              onClick={handleAddElement}
+              sx={{
+                borderRadius: '50%',
+                width: '40px',
+                height: '40px',
+                minWidth: '40px',
+                minHeight: '40px',
+              }}
+            >
+              <AddIcon />
+            </Button>
+          </div>
+        </div>
+      </div>
+      <CustomizedSnackbar
+        isError={isError}
+        msg={msg}
+        open={openSnackbar}
+        setOpen={setOpenSnackbar}
+      />
+    </div>
+  );
+};
+
+export default page;
